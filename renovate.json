@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>jabrown93/.github:renovate-config"]
+  "extends": ["local>jabrown93/.github:renovate-config"],
+  "packageRules": [
+    {
+      "description": "conventional-changelog-conventionalcommits v10 is buggy in this setup; stay on the v9.x line until that's resolved (see PR #4).",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["conventional-changelog-conventionalcommits"],
+      "allowedVersions": "<10.0.0"
+    }
+  ]
 }
