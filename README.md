@@ -25,9 +25,19 @@ npm install --save-dev @jabrown93/dev-config
 // tsconfig.json
 {
   "extends": "@jabrown93/dev-config/tsconfig",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
   "include": ["src"]
 }
 ```
+
+`rootDir`/`outDir` must stay in the **consumer's own** `tsconfig.json`, not the shared base:
+TypeScript resolves an extended config's relative paths against _that config file's own
+location_, so a `rootDir`/`outDir` baked into this package would resolve to paths inside
+`node_modules/@jabrown93/dev-config/`, not the consumer's own `src`/`dist` — breaking every
+consumer with a `TS6059` "not under rootDir" error.
 
 ### ESLint (flat config)
 
@@ -95,7 +105,7 @@ per repo.
 
 | Subpath                             | Contents                                                                                                                                                             |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@jabrown93/dev-config/tsconfig`    | Shared `compilerOptions` (target/module/strict/etc.) — no `include`/`exclude`, those are repo-specific                                                               |
+| `@jabrown93/dev-config/tsconfig`    | Shared `compilerOptions` (target/module/strict/etc.) — no `rootDir`/`outDir`/`include`/`exclude`, those must stay in the consumer's own tsconfig (see above)         |
 | `@jabrown93/dev-config/eslint`      | Flat-config array (parser, `eslint:recommended` + `@typescript-eslint/recommended`, the fleet's stylistic rules)                                                     |
 | `@jabrown93/dev-config/prettier`    | The 5 shared Prettier options                                                                                                                                        |
 | `@jabrown93/dev-config/commitlint`  | `@commitlint/config-conventional` + 4 rule overrides                                                                                                                 |
