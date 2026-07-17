@@ -64,8 +64,14 @@ export default {
         // Trims a duplicate leading "Unreleased"-style CHANGELOG heading on
         // release branches. Present in 3 of the 4 fleet repos; the 4th
         // (philips-hue-sync-box) was missing it -- restored here.
+        //
+        // Guarded on the file existing: this step runs before
+        // @semantic-release/changelog's own `prepare` hook (the one that
+        // creates CHANGELOG.md), so on a repo's very first-ever release --
+        // this package's own included -- there's no file yet and a bare
+        // `sed -i` would exit nonzero and abort the release.
         prepareCmd:
-          "test ${branch.type} != release || sed -i '/^## \\[/h;x;/^[^]]*-/{x;d};x' CHANGELOG.md",
+          "test ${branch.type} != release || test ! -f CHANGELOG.md || sed -i '/^## \\[/h;x;/^[^]]*-/{x;d};x' CHANGELOG.md",
       },
     ],
     [
