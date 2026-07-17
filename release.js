@@ -52,11 +52,22 @@ export default {
     { name: 'beta', prerelease: true },
     { name: 'alpha', prerelease: true },
   ],
-  preset: 'conventionalcommits',
   plugins: [
     [
       '@semantic-release/commit-analyzer',
-      { parserOpts: { noteKeywords }, releaseRules: depReleaseRules },
+      {
+        // `preset` is not a semantic-release core option -- there is no
+        // top-level fallback; each plugin reads it only from its own tuple's
+        // options (verified against @semantic-release/commit-analyzer's and
+        // release-notes-generator's own loaders, and semantic-release core
+        // itself has zero references to "preset" anywhere). A top-level
+        // `preset` key here would be silently ignored, and both plugins
+        // would fall back to the Angular preset instead -- the fleet's
+        // original per-repo configs all had exactly that silent bug.
+        preset: 'conventionalcommits',
+        parserOpts: { noteKeywords },
+        releaseRules: depReleaseRules,
+      },
     ],
     [
       '@semantic-release/exec',
@@ -77,6 +88,7 @@ export default {
     [
       '@semantic-release/release-notes-generator',
       {
+        preset: 'conventionalcommits',
         parserOpts: { noteKeywords },
         writerOpts: { commitsSort: ['subject', 'scope'] },
       },
