@@ -1,0 +1,88 @@
+{
+  "name": "@jabrown93/dev-config",
+  "version": "0.0.0-development",
+  "description": "Shared JS/TS dev-tooling config (tsconfig, eslint, prettier, commitlint, lint-staged, semantic-release) for jabrown93 repos",
+  "keywords": [
+    "eslint-config",
+    "tsconfig",
+    "prettier-config",
+    "commitlint-config",
+    "lint-staged-config",
+    "semantic-release-config"
+  ],
+  "homepage": "https://github.com/jabrown93/dev-config#readme",
+  "bugs": {
+    "url": "https://github.com/jabrown93/dev-config/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jabrown93/dev-config.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Jared Brown",
+    "email": "npm@jaredbrown.io",
+    "url": "https://github.com/jabrown93"
+  },
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^22.14.0 || ^24.11.0 || ^26.0.0"
+  },
+  "files": [
+    "tsconfig.base.json",
+    "eslint.js",
+    "prettier.json",
+    "commitlint.config.js",
+    "lint-staged.js",
+    "release.js"
+  ],
+  "exports": {
+    "./tsconfig": "./tsconfig.base.json",
+    "./eslint": "./eslint.js",
+    "./prettier": "./prettier.json",
+    "./commitlint": "./commitlint.config.js",
+    "./lint-staged": "./lint-staged.js",
+    "./release": "./release.js"
+  },
+  "prettier": "./prettier.json",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "prettier": "prettier --check .",
+    "build": "echo \"no build step -- plain JS/JSON config package\"",
+    "test": "node scripts/verify-exports.mjs",
+    "semantic-release": "cross-env semantic-release --no-ci",
+    "release": "npm-run-all build semantic-release",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@commitlint/config-conventional": "21.2.0",
+    "@eslint/eslintrc": "3.3.6",
+    "@eslint/js": "10.0.1",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/exec": "7.1.0",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/github": "12.0.9",
+    "@semantic-release/npm": "13.1.5",
+    "@semantic-release/release-notes-generator": "14.1.1",
+    "@typescript-eslint/eslint-plugin": "8.64.0",
+    "@typescript-eslint/parser": "8.64.0",
+    "conventional-changelog-conventionalcommits": "9.3.1",
+    "globals": "17.7.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.1",
+    "cross-env": "10.1.0",
+    "eslint": "10.7.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8",
+    "npm-run-all2": "9.0.2",
+    "prettier": "3.9.5",
+    "semantic-release": "25.0.7"
+  }
+}
