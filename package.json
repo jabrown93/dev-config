@@ -1,6 +1,6 @@
 {
   "name": "@jabrown93/dev-config",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "Shared JS/TS dev-tooling config (tsconfig, eslint, prettier, commitlint, lint-staged, semantic-release) for jabrown93 repos",
   "keywords": [
     "eslint-config",
