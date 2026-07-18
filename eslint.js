@@ -38,12 +38,12 @@ export default [
   {
     languageOptions: {
       parser: tsParser,
-      // 2022 to match the shared tsconfig's own `target`/`lib` -- the fleet's
+      // 2024 to match the shared tsconfig's own `target`/`lib` -- the fleet's
       // original 2018 left ES2020+ built-in globals (AggregateError, WeakRef,
       // FinalizationRegistry, ...) out of ESLint's recognized-globals set, so
       // `eslint:recommended`'s no-undef flagged valid, runtime-supported code
       // as undefined.
-      ecmaVersion: 2022,
+      ecmaVersion: 2024,
       sourceType: 'module',
       // The fleet's original config never set `globals`, so flat config
       // assumed no runtime environment -- `no-undef` would flag bare
