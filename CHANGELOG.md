@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/jabrown93/dev-config/compare/v1.0.1...v1.1.0) (2026-07-18)
+
+### Features
+
+* bump shared TS/ESLint base to ES2024 ([#7](https://github.com/jabrown93/dev-config/issues/7)) ([3d8c31f](https://github.com/jabrown93/dev-config/commit/3d8c31f39e27d9153fa847aaa4c0420c3f5ed121))
+
 ## [1.0.1](https://github.com/jabrown93/dev-config/compare/v1.0.0...v1.0.1) (2026-07-17)
 
 ### Bug Fixes
