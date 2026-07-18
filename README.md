@@ -21,6 +21,9 @@ npm install --save-dev @jabrown93/dev-config
 
 ### TypeScript
 
+Requires `typescript` **5.7+** — `target`/`lib: ES2024` isn't recognized before that (declared
+as a `peerDependencies` floor; npm will warn on install if the consumer's `typescript` is older).
+
 ```json
 // tsconfig.json
 {
