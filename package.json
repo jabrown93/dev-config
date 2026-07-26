@@ -32,7 +32,41 @@
     "node": "^22.14.0 || ^24.11.0 || ^26.0.0"
   },
   "peerDependencies": {
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^11.0.0",
+    "@semantic-release/github": "^12.0.9",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
     "typescript": ">=5.7.0"
+  },
+  "peerDependenciesMeta": {
+    "@semantic-release/changelog": {
+      "optional": true
+    },
+    "@semantic-release/commit-analyzer": {
+      "optional": true
+    },
+    "@semantic-release/exec": {
+      "optional": true
+    },
+    "@semantic-release/git": {
+      "optional": true
+    },
+    "@semantic-release/github": {
+      "optional": true
+    },
+    "@semantic-release/npm": {
+      "optional": true
+    },
+    "@semantic-release/release-notes-generator": {
+      "optional": true
+    },
+    "conventional-changelog-conventionalcommits": {
+      "optional": true
+    }
   },
   "files": [
     "tsconfig.base.json",
@@ -66,6 +100,12 @@
     "@commitlint/config-conventional": "21.2.0",
     "@eslint/eslintrc": "3.3.6",
     "@eslint/js": "10.0.1",
+    "@typescript-eslint/eslint-plugin": "8.65.0",
+    "@typescript-eslint/parser": "8.65.0",
+    "globals": "17.7.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.1",
     "@semantic-release/changelog": "7.0.0",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/exec": "7.1.0",
@@ -73,13 +113,7 @@
     "@semantic-release/github": "12.0.9",
     "@semantic-release/npm": "13.1.5",
     "@semantic-release/release-notes-generator": "14.1.1",
-    "@typescript-eslint/eslint-plugin": "8.65.0",
-    "@typescript-eslint/parser": "8.65.0",
     "conventional-changelog-conventionalcommits": "9.3.1",
-    "globals": "17.7.0"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "21.2.1",
     "cross-env": "10.1.0",
     "eslint": "10.7.0",
     "husky": "9.1.7",

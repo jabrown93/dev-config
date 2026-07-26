@@ -92,6 +92,17 @@ one lint-staged config source should exist per repo.
 `extends` is a resolver string, not code — this works from a `.releaserc.json` even though the
 referenced module runs code at load time.
 
+The plugins this config names are **optional peer dependencies**, so they are not installed
+unless a consumer asks for them (see "Dependency split" below). A repo that uses `/release`
+installs them alongside `semantic-release` itself:
+
+```sh
+npm install --save-dev semantic-release \
+  @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/exec \
+  @semantic-release/git @semantic-release/github @semantic-release/npm \
+  @semantic-release/release-notes-generator conventional-changelog-conventionalcommits
+```
+
 This config suppresses routine `fix(deps)` commits on ordinary pushes and promotes them into a
 single weekly patch release when the caller's workflow sets `RELEASE_DEPS=true` (see
 `jabrown93/.github`'s README, "Weekly dependency releases"). **A consumer's `release.yml` must
@@ -119,12 +130,23 @@ per repo.
 
 Tools whose **bin** a consumer invokes directly (`eslint`, `prettier`, `typescript`, `husky`,
 `lint-staged`, `semantic-release`, `@commitlint/cli`, plus each repo's own test runner) stay as
-**direct devDependencies in the consumer**. Packages this config resolves internally at
-runtime and a consumer never invokes directly (`@typescript-eslint/*`, `@eslint/js`,
-`@eslint/eslintrc`, `@commitlint/config-conventional`, every `@semantic-release/*` plugin,
-`conventional-changelog-conventionalcommits`) are `dependencies` **of this package** — they
+**direct devDependencies in the consumer**.
+
+Packages the lint/format/commit configs resolve internally and a consumer never invokes
+directly (`@typescript-eslint/*`, `@eslint/js`, `@eslint/eslintrc`,
+`@commitlint/config-conventional`, `globals`) are `dependencies` **of this package** — they
 arrive in a consumer's tree via normal npm hoisting when this package installs, and a version
-bump here is the only place those need touching.
+bump here is the only place those need touching. That set costs ~120 packages.
+
+The semantic-release plugins (`@semantic-release/*`,
+`conventional-changelog-conventionalcommits`) are **optional peer dependencies** instead, so
+they are not installed unless the consumer asks for them. As `dependencies` they pulled ~465
+packages — `@semantic-release/npm` alone drags in the npm CLI — into every consumer, including
+ones that only wanted `/eslint` and `/prettier` (an app repo that does not release from npm at
+all still paid for the whole tree). The trade-off is that a `/release` consumer now pins those
+plugin versions in its own `package.json` rather than inheriting them; Renovate bumps them
+per-repo, the same way it already handles each repo's `eslint`/`prettier`/`semantic-release`
+bins.
 
 ## Versioning
 
