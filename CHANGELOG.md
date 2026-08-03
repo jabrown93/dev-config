@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2](https://github.com/jabrown93/dev-config/compare/v1.1.1...v1.1.2) (2026-08-03)
+
+### Bug Fixes
+
+* **deps:** update dependency globals to v17.8.0 ([c73ab0b](https://github.com/jabrown93/dev-config/commit/c73ab0bc11ea377fc9905885ca8be9a17623e2d0))
+
 ## [1.1.1](https://github.com/jabrown93/dev-config/compare/v1.1.0...v1.1.1) (2026-07-27)
 
 ### Bug Fixes
