@@ -76,7 +76,7 @@
     "@typescript-eslint/eslint-plugin": "8.67.0",
     "@typescript-eslint/parser": "8.67.0",
     "conventional-changelog-conventionalcommits": "9.3.1",
-    "globals": "17.10.0"
+    "globals": "17.11.0"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
