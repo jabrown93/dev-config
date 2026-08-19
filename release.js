@@ -119,19 +119,32 @@ export default {
       },
     ],
     [
-      '@semantic-release/git',
+      '@semantic-release/exec',
       {
-        // `chore(release): ... [skip ci]` -- 3 of the 4 fleet repos used
-        // `ci(release): ...` with no `[skip ci]`. GitHub Actions natively
-        // skips ALL workflows (build.yml + release.yml) for a push whose
-        // HEAD commit message contains `[skip ci]`, so omitting it means the
-        // version-bump commit this plugin creates re-triggers a full
-        // lint/build/test matrix and a whole redundant semantic-release run
-        // for nothing (semantic-release itself no-ops since there's nothing
-        // new to release, but the CI run still executes). Standardized on
-        // the more efficient form (already used by philips-hue-sync-box).
-        message:
-          'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        // Version-bump commit via GitHub's GraphQL createCommitOnBranch
+        // instead of @semantic-release/git: API commits are signed by GitHub
+        // and show as Verified, which a local git commit from a CI bot never
+        // can be. RELEASE_COMMIT_SCRIPT is exported by the
+        // jabrown93/ci/actions/release-commit step in npm-release.yml
+        // (workflows-v1.1.0+), so a consumer's release.yml pin must be at
+        // least that. It is written WITHOUT braces because exec runs this
+        // command through a Lodash template that would evaluate ${...} as
+        // JS -- the bare form is left for the shell. The script skips
+        // unchanged or absent paths (npm-shrinkwrap.json is listed for
+        // parity with @semantic-release/git's defaults) and hard-resets the
+        // checkout so the release tag points at the API commit.
+        //
+        // `[skip ci]` kept: GitHub Actions natively skips ALL workflows for
+        // a push whose HEAD commit message contains it, and the app-token
+        // API commit would otherwise re-trigger a full lint/build/test
+        // matrix plus a redundant semantic-release run. Trade-off vs the git
+        // plugin: the API takes a headline only, so the release notes no
+        // longer ride in the commit body -- they remain in CHANGELOG.md and
+        // the GitHub Release.
+        prepareCmd:
+          'node $RELEASE_COMMIT_SCRIPT --branch ${branch.name}' +
+          " --message 'chore(release): ${nextRelease.version} [skip ci]' --" +
+          ' CHANGELOG.md package.json package-lock.json npm-shrinkwrap.json',
       },
     ],
   ],
