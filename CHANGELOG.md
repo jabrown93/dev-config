@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/jabrown93/dev-config/compare/v1.1.4...v1.2.0) (2026-08-19)
+
+### Features
+
+* **release:** create the version-bump commit via the GitHub API so it is Verified ([#16](https://github.com/jabrown93/dev-config/issues/16)) ([e2639bb](https://github.com/jabrown93/dev-config/commit/e2639bbcdab5f23797816ade349d8569a6eca733))
+
 ## [1.1.4](https://github.com/jabrown93/dev-config/compare/v1.1.3...v1.1.4) (2026-08-17)
 
 ### Bug Fixes
