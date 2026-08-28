@@ -1,3 +1,4 @@
 node_modules
 sbom.cdx.json
 .DS_Store
+.pi/
