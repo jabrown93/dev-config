@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 // Shared semantic-release configuration for jabrown93 npm packages.
 //
 // Consumers reference this with a one-line `.releaserc.json` (or `.js`):
@@ -39,6 +41,20 @@ const depReleaseRules = [
 
 const noteKeywords = ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'];
 
+// Both plugins resolve a bare `preset: 'conventionalcommits'` string from
+// their OWN directory first, which walks up to the consumer's hoisted root
+// copy -- not this package's pinned one. A consumer that also has
+// @commitlint/config-conventional@21 hoists conventionalcommits@10 there,
+// and v10 hard-refuses the conventional-changelog-writer@8 that
+// @semantic-release/release-notes-generator@14 still ships, aborting the
+// release with `Missing helper: "conventional-changelog-conventionalcommits
+// requires conventional-changelog-writer@9 or newer"`. Passing an absolute
+// path as `config` (import-from-esm treats a leading `/` as a file module)
+// pins every consumer to the version resolved here.
+const conventionalcommits = fileURLToPath(
+  import.meta.resolve('conventional-changelog-conventionalcommits')
+);
+
 export default {
   // NOTE: `branches` (plural) -- this is the key semantic-release actually
   // reads. Two of the fleet's original per-repo .releaserc.json files had
@@ -56,15 +72,15 @@ export default {
     [
       '@semantic-release/commit-analyzer',
       {
-        // `preset` is not a semantic-release core option -- there is no
-        // top-level fallback; each plugin reads it only from its own tuple's
-        // options (verified against @semantic-release/commit-analyzer's and
-        // release-notes-generator's own loaders, and semantic-release core
-        // itself has zero references to "preset" anywhere). A top-level
-        // `preset` key here would be silently ignored, and both plugins
-        // would fall back to the Angular preset instead -- the fleet's
-        // original per-repo configs all had exactly that silent bug.
-        preset: 'conventionalcommits',
+        // `config`/`preset` is not a semantic-release core option -- there
+        // is no top-level fallback; each plugin reads it only from its own
+        // tuple's options (verified against @semantic-release/commit-analyzer's
+        // and release-notes-generator's own loaders, and semantic-release core
+        // itself has zero references to "preset" anywhere). A top-level key
+        // here would be silently ignored, and both plugins would fall back to
+        // the Angular preset instead -- the fleet's original per-repo configs
+        // all had exactly that silent bug.
+        config: conventionalcommits,
         parserOpts: { noteKeywords },
         releaseRules: depReleaseRules,
       },
@@ -88,7 +104,7 @@ export default {
     [
       '@semantic-release/release-notes-generator',
       {
-        preset: 'conventionalcommits',
+        config: conventionalcommits,
         parserOpts: { noteKeywords },
         writerOpts: { commitsSort: ['subject', 'scope'] },
       },
