@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.2](https://github.com/jabrown93/dev-config/compare/v1.2.1...v1.2.2) (2026-09-07)
+
+### Bug Fixes
+
+* **deps:** update dependency @eslint/eslintrc to v3.3.7 ([f56a341](https://github.com/jabrown93/dev-config/commit/f56a34104d9184a5eba498813e08e847e288e600))
+* **deps:** update dependency globals to v17.12.0 ([9990c57](https://github.com/jabrown93/dev-config/commit/9990c578f06fd2b744b12bac560eebb983160aa0))
+* **deps:** update typescript-eslint monorepo to v8.69.0 ([714ea08](https://github.com/jabrown93/dev-config/commit/714ea0885ccda10651d12ff6b4edd9255896afb3))
+
 ## [1.2.1](https://github.com/jabrown93/dev-config/compare/v1.2.0...v1.2.1) (2026-08-28)
 
 ### Bug Fixes
