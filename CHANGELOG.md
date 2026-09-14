@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.3](https://github.com/jabrown93/dev-config/compare/v1.2.2...v1.2.3) (2026-09-14)
+
+### Bug Fixes
+
+* **deps:** update typescript-eslint monorepo to v8.70.0 ([0a8e482](https://github.com/jabrown93/dev-config/commit/0a8e48242ece5e2665560841f50ba846efed17b3))
+
 ## [1.2.2](https://github.com/jabrown93/dev-config/compare/v1.2.1...v1.2.2) (2026-09-07)
 
 ### Bug Fixes
