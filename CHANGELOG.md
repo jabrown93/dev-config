@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.4](https://github.com/jabrown93/dev-config/compare/v1.2.3...v1.2.4) (2026-09-28)
+
+### Bug Fixes
+
+* **deps:** update commitlint monorepo to v21.2.3 ([8bf0e7f](https://github.com/jabrown93/dev-config/commit/8bf0e7f10b6912b9d3e5f245997221ab3c72d840))
+* **deps:** update dependency @semantic-release/github to v12.0.10 ([0768a0b](https://github.com/jabrown93/dev-config/commit/0768a0b3db10e52bdefcd19bde045bca3d35475c))
+* **deps:** update dependency @semantic-release/npm to v13.2.0 ([aecd4d9](https://github.com/jabrown93/dev-config/commit/aecd4d958d4c7113e40a689a2141c0e33f84250c))
+* **deps:** update typescript-eslint monorepo to v8.70.1 ([6afb78d](https://github.com/jabrown93/dev-config/commit/6afb78da767552fc68dc8edf8b6db04118bd4ee8))
+
 ## [1.2.3](https://github.com/jabrown93/dev-config/compare/v1.2.2...v1.2.3) (2026-09-14)
 
 ### Bug Fixes
