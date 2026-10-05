@@ -106,13 +106,13 @@ per repo.
 
 ## What's exported
 
-| Subpath                             | Contents                                                                                                                                                             |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@jabrown93/dev-config/tsconfig`    | Shared `compilerOptions` (target/module/strict/etc.) — no `rootDir`/`outDir`/`include`/`exclude`, those must stay in the consumer's own tsconfig (see above)         |
-| `@jabrown93/dev-config/eslint`      | Flat-config array (parser, `eslint:recommended` + `@typescript-eslint/recommended`, the fleet's stylistic rules)                                                     |
-| `@jabrown93/dev-config/prettier`    | The 5 shared Prettier options                                                                                                                                        |
-| `@jabrown93/dev-config/commitlint`  | `@commitlint/config-conventional` + 4 rule overrides                                                                                                                 |
-| `@jabrown93/dev-config/lint-staged` | `eslint --fix` on staged js/mjs/ts + `prettier --write` on staged js/mjs/ts/json/md/yml                                                                              |
+| Subpath                             | Contents                                                                                                                                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@jabrown93/dev-config/tsconfig`    | Shared `compilerOptions` (target/module/strict/etc.) — no `rootDir`/`outDir`/`include`/`exclude`, those must stay in the consumer's own tsconfig (see above)           |
+| `@jabrown93/dev-config/eslint`      | Flat-config array (parser, `eslint:recommended` + `@typescript-eslint/recommended`, the fleet's stylistic rules)                                                       |
+| `@jabrown93/dev-config/prettier`    | The 5 shared Prettier options                                                                                                                                          |
+| `@jabrown93/dev-config/commitlint`  | `@commitlint/config-conventional` + 4 rule overrides                                                                                                                   |
+| `@jabrown93/dev-config/lint-staged` | `eslint --fix` on staged js/mjs/ts + `prettier --write` on staged js/mjs/ts/json/md/yml                                                                                |
 | `@jabrown93/dev-config/release`     | semantic-release config: branches `main`/`next`/`beta`/`alpha`, conventionalcommits preset, CHANGELOG trim, CycloneDX SBOM release asset, `chore(deps)` weekly roll-up |
 
 ## Dependency split
