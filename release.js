@@ -12,31 +12,32 @@ import { fileURLToPath } from 'node:url';
 //   * push to `main`/`next` -> stable release (feat -> minor, fix/perf -> patch, ! -> major)
 //   * push to `beta`/`alpha` -> prerelease (vX.Y.Z-beta.N / -alpha.N)
 //
-// Routine runtime dependency bumps (fix(deps), from Renovate via the shared
-// preset in jabrown93/.github) do NOT cut a release on ordinary pushes --
-// they would otherwise publish a new npm version per merged Renovate PR. A
-// weekly scheduled run (see jabrown93/.github's README, "Weekly dependency
-// releases") sets RELEASE_DEPS=true, which promotes the accumulated bumps
-// into one patch release. Vulnerability fixes are typed fix(security) by the
-// preset, not fix(deps), so they are unaffected by the suppression and still
-// release immediately.
+// Routine dependency bumps from Renovate (via the shared preset in
+// jabrown93/.github) are typed chore(deps) for runtime deps that ship, or
+// chore(dev-deps) for dev/test/CI-only deps. chore(dev-deps) never releases
+// (chore doesn't release by default -- no rule needed). chore(deps) does NOT
+// cut a release on ordinary pushes -- it would otherwise publish a new npm
+// version per merged Renovate PR. A weekly scheduled run (see
+// jabrown93/.github's README, "Weekly dependency releases") sets
+// RELEASE_DEPS=true, which promotes the accumulated chore(deps) bumps into
+// one patch release. fix releases immediately through the default rules
+// (not suppressed). Vulnerability fixes are typed fix(security) by the
+// preset, so they release immediately like any other fix.
 //
 // IMPORTANT for adopters: a consumer's release.yml caller must add a
 // `schedule` (and ideally `workflow_dispatch`) trigger for RELEASE_DEPS to
-// ever become true -- without it, fix(deps) commits are suppressed forever,
-// not just batched. See jabrown93/homebridge-smartrent's release.yml for the
-// trigger shape to copy.
+// ever become true -- without it, chore(deps) commits are suppressed
+// forever, not just batched. See jabrown93/homebridge-smartrent's
+// release.yml for the trigger shape to copy.
 const releaseDeps = process.env.RELEASE_DEPS === 'true';
 
 const depReleaseRules = [
   // Required: commit-analyzer evaluates every matching custom rule and keeps
-  // the highest release type, so without this a breaking fix(deps)! would
+  // the highest release type, so without this a breaking chore(deps)! would
   // match ONLY the suppression rule below and never release. Listed first so
   // the analyzer short-circuits on major.
-  { type: 'fix', scope: 'deps', breaking: true, release: 'major' },
-  releaseDeps
-    ? { type: 'fix', scope: 'deps', release: 'patch' }
-    : { type: 'fix', scope: 'deps', release: false },
+  { type: 'chore', scope: 'deps', breaking: true, release: 'major' },
+  { type: 'chore', scope: 'deps', release: releaseDeps ? 'patch' : false },
 ];
 
 const noteKeywords = ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'];

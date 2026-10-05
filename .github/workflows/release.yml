@@ -9,14 +9,14 @@ on:
       - beta
       - alpha
       - next
-  # Weekly roll-up of the fix(deps) commits release.js suppresses on push,
+  # Weekly roll-up of the chore(deps) commits release.js suppresses on push,
   # promoted into a single patch release. GitHub only fires schedule from the
   # default branch, so this sweeps main only; use the manual trigger below to
   # sweep the other branches.
   schedule:
     - cron: '0 9 * * 1' # Mondays 09:00 UTC — weekly dependency roll-up
   # Also sets RELEASE_DEPS, so a manual run is an on-demand dependency sweep
-  # (and the only way to promote beta/alpha/next's suppressed fix(deps) commits).
+  # (and the only way to promote beta/alpha/next's suppressed chore(deps) commits).
   workflow_dispatch: {}
 concurrency:
   group: release-${{ github.ref }}

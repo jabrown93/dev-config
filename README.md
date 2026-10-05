@@ -92,11 +92,11 @@ one lint-staged config source should exist per repo.
 `extends` is a resolver string, not code — this works from a `.releaserc.json` even though the
 referenced module runs code at load time.
 
-This config suppresses routine `fix(deps)` commits on ordinary pushes and promotes them into a
+This config suppresses routine `chore(deps)` commits on ordinary pushes and promotes them into a
 single weekly patch release when the caller's workflow sets `RELEASE_DEPS=true` (see
 `jabrown93/.github`'s README, "Weekly dependency releases"). **A consumer's `release.yml` must
 add a `schedule` (and ideally `workflow_dispatch`) trigger for this to ever fire** — without
-one, `fix(deps)` commits are suppressed forever, not just batched. See this repo's own
+one, `chore(deps)` commits are suppressed forever, not just batched. See this repo's own
 `.github/workflows/release.yml`, or `homebridge-smartrent`'s, for the trigger shape to copy.
 
 ### What stays per-repo
@@ -113,7 +113,7 @@ per repo.
 | `@jabrown93/dev-config/prettier`    | The 5 shared Prettier options                                                                                                                                        |
 | `@jabrown93/dev-config/commitlint`  | `@commitlint/config-conventional` + 4 rule overrides                                                                                                                 |
 | `@jabrown93/dev-config/lint-staged` | `eslint --fix` on staged js/mjs/ts + `prettier --write` on staged js/mjs/ts/json/md/yml                                                                              |
-| `@jabrown93/dev-config/release`     | semantic-release config: branches `main`/`next`/`beta`/`alpha`, conventionalcommits preset, CHANGELOG trim, CycloneDX SBOM release asset, `fix(deps)` weekly roll-up |
+| `@jabrown93/dev-config/release`     | semantic-release config: branches `main`/`next`/`beta`/`alpha`, conventionalcommits preset, CHANGELOG trim, CycloneDX SBOM release asset, `chore(deps)` weekly roll-up |
 
 ## Dependency split
 
