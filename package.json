@@ -58,7 +58,7 @@
     "prettier": "prettier --check .",
     "build": "echo \"no build step -- plain JS/JSON config package\"",
     "test": "node scripts/verify-exports.mjs && node --test test/*.test.mjs",
-    "semantic-release": "cross-env semantic-release --no-ci",
+    "semantic-release": "semantic-release --no-ci",
     "release": "npm-run-all build semantic-release",
     "prepare": "husky"
   },
@@ -79,7 +79,6 @@
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.4",
-    "cross-env": "10.1.0",
     "eslint": "10.13.0",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
