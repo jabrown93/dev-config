@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile, copyFile } from 'node:fs/promises';
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -16,6 +23,12 @@ import ts from 'typescript';
 const execFileAsync = promisify(execFile);
 const rootDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const fixtureDir = path.join(rootDir, 'test', 'fixtures');
+const lintStagedRunner = path.join(
+  rootDir,
+  'test',
+  'helpers',
+  'run-lint-staged.mjs'
+);
 const eslintConfigPath = fileURLToPath(
   import.meta.resolve('@jabrown93/dev-config/eslint')
 );
@@ -32,7 +45,6 @@ const lintStagedConfigPath = fileURLToPath(
   import.meta.resolve('@jabrown93/dev-config/lint-staged')
 );
 const releaseConfig = (await import('@jabrown93/dev-config/release')).default;
-const lintStaged = (await import('lint-staged')).default;
 
 /**
  * Get fixture path by config and expected result.
@@ -46,19 +58,79 @@ function fixture(config, name) {
 }
 
 /**
- * Run Git without inheriting test runner's current directory.
+ * Create environment that cannot inherit caller Git state.
+ *
+ * @param {string} cwd Temporary repository directory.
+ * @param {Record<string, string>} [extra] Explicit Git variables for a test.
+ * @returns {Promise<Record<string, string>>} Sanitized environment.
+ */
+async function gitEnvironment(cwd, extra = {}) {
+  const configPath = path.join(cwd, 'gitconfig');
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_'))
+  );
+
+  await writeFile(
+    configPath,
+    '[user]\n\tname = Config Test\n\temail = test@example.com\n[commit]\n\tgpgsign = false\n'
+  );
+
+  return {
+    ...env,
+    GIT_AUTHOR_EMAIL: 'test@example.com',
+    GIT_AUTHOR_NAME: 'Config Test',
+    GIT_COMMITTER_EMAIL: 'test@example.com',
+    GIT_COMMITTER_NAME: 'Config Test',
+    GIT_CONFIG_GLOBAL: configPath,
+    GIT_CONFIG_NOSYSTEM: '1',
+    ...extra,
+  };
+}
+
+/**
+ * Run Git in temporary repository with isolated configuration.
  *
  * @param {string} cwd Repository directory.
  * @param {string[]} args Git arguments.
+ * @param {Record<string, string>} env Sanitized environment.
  * @returns {Promise<void>} Completes when Git command succeeds.
  */
-async function git(cwd, args) {
-  const env = { ...process.env };
-
-  delete env.GIT_DIR;
-  delete env.GIT_INDEX_FILE;
-  delete env.GIT_WORK_TREE;
+async function git(cwd, args, env) {
   await execFileAsync('git', args, { cwd, env });
+}
+
+/**
+ * Read Git output from temporary repository with isolated configuration.
+ *
+ * @param {string} cwd Repository directory.
+ * @param {string[]} args Git arguments.
+ * @param {Record<string, string>} env Sanitized environment.
+ * @returns {Promise<string>} Git standard output.
+ */
+async function gitOutput(cwd, args, env) {
+  const { stdout } = await execFileAsync('git', args, { cwd, env });
+
+  return stdout;
+}
+
+/**
+ * Run lint-staged in child process so its Git subprocesses inherit only test state.
+ *
+ * @param {string} cwd Repository directory.
+ * @param {Record<string, string>} env Sanitized environment.
+ * @returns {Promise<{messages: string[]; success: boolean}>} lint-staged result.
+ */
+async function runLintStaged(cwd, env) {
+  const childEnv = Object.fromEntries(
+    Object.entries(env).filter(([name]) => !name.startsWith('GIT_'))
+  );
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [lintStagedRunner, cwd, lintStagedConfigPath, env.GIT_CONFIG_GLOBAL],
+    { cwd, env: childEnv }
+  );
+
+  return JSON.parse(stdout);
 }
 
 test('ESLint config loads and reports configured TypeScript rule', async () => {
@@ -142,22 +214,7 @@ test('lint-staged config runs clean staged fixture and rejects lint warning', as
   const cwd = await mkdtemp(path.join(tmpdir(), 'dev-config-lint-staged-'));
   const configPath = path.join(cwd, 'eslint.config.mjs');
   const target = path.join(cwd, 'fixture.ts');
-  const gitEnvironment = Object.fromEntries(
-    ['GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE'].map(name => [
-      name,
-      process.env[name],
-    ])
-  );
-  const messages = [];
-  const logger = {
-    error: message => messages.push(message),
-    log: message => messages.push(message),
-    warn: message => messages.push(message),
-  };
-
-  for (const name of Object.keys(gitEnvironment)) {
-    delete process.env[name];
-  }
+  const env = await gitEnvironment(cwd);
 
   try {
     await writeFile(
@@ -165,47 +222,82 @@ test('lint-staged config runs clean staged fixture and rejects lint warning', as
       `import config from '${pathToFileURL(eslintConfigPath).href}';\nexport default config;\n`
     );
     await copyFile(fixture('eslint', 'clean.ts'), target);
-    await git(cwd, ['init', '--initial-branch=main']);
-    await git(cwd, ['config', 'user.email', 'test@example.com']);
-    await git(cwd, ['config', 'user.name', 'Config Test']);
-    await git(cwd, ['add', '.']);
-    await git(cwd, ['commit', '-m', 'test: add fixture']);
+    await git(cwd, ['init', '--initial-branch=main'], env);
+    await git(cwd, ['add', '.'], env);
+    await git(cwd, ['commit', '-m', 'test: add fixture'], env);
 
     await writeFile(target, await readFile(fixture('eslint', 'clean.ts')));
-    await git(cwd, ['add', 'fixture.ts']);
-    assert.equal(
-      await lintStaged(
-        { cwd, configPath: lintStagedConfigPath, quiet: true, stash: false },
-        logger
-      ),
-      true
-    );
+    await git(cwd, ['add', 'fixture.ts'], env);
+    assert.equal((await runLintStaged(cwd, env)).success, true);
 
     await copyFile(fixture('eslint', 'bad.txt'), target);
-    await git(cwd, ['add', 'fixture.ts']);
-    assert.equal(
-      await lintStaged(
-        { cwd, configPath: lintStagedConfigPath, quiet: true, stash: false },
-        logger
-      ),
-      false
-    );
+    await git(cwd, ['add', 'fixture.ts'], env);
+    const result = await runLintStaged(cwd, env);
+
+    assert.equal(result.success, false);
     assert.ok(
-      messages.some(message =>
+      result.messages.some(message =>
         message.includes('@typescript-eslint/no-explicit-any')
       )
     );
   } finally {
-    for (const [name, value] of Object.entries(gitEnvironment)) {
-      if (value === undefined) {
-        delete process.env[name];
-      } else {
-        process.env[name] = value;
-      }
-    }
     await rm(cwd, { force: true, recursive: true });
   }
 });
+
+test(
+  'git-touching tests do not mutate inherited Git repository state',
+  { skip: process.env.DEV_CONFIG_GIT_ENV_REGRESSION === '1' },
+  async () => {
+    const cwd = await mkdtemp(path.join(tmpdir(), 'dev-config-git-env-'));
+    const decoy = path.join(cwd, 'decoy');
+
+    try {
+      await mkdir(decoy);
+      const env = await gitEnvironment(decoy);
+      await git(decoy, ['init', '--initial-branch=main'], env);
+      await writeFile(path.join(decoy, 'fixture.txt'), 'decoy\n');
+      await git(decoy, ['add', 'fixture.txt'], env);
+      await git(decoy, ['commit', '-m', 'test: decoy'], env);
+      const refsBefore = await gitOutput(
+        decoy,
+        ['for-each-ref', '--format=%(refname) %(objectname)'],
+        env
+      );
+      const indexBefore = await readFile(path.join(decoy, '.git', 'index'));
+      const childEnv = await gitEnvironment(decoy, {
+        DEV_CONFIG_GIT_ENV_REGRESSION: '1',
+        GIT_DIR: path.join(decoy, '.git'),
+        GIT_INDEX_FILE: path.join(decoy, '.git', 'index'),
+        GIT_WORK_TREE: decoy,
+      });
+
+      await execFileAsync(
+        process.execPath,
+        ['--test', 'test/configs.test.mjs'],
+        {
+          cwd: rootDir,
+          env: childEnv,
+        }
+      );
+
+      assert.equal(
+        await gitOutput(
+          decoy,
+          ['for-each-ref', '--format=%(refname) %(objectname)'],
+          env
+        ),
+        refsBefore
+      );
+      assert.deepEqual(
+        await readFile(path.join(decoy, '.git', 'index')),
+        indexBefore
+      );
+    } finally {
+      await rm(cwd, { force: true, recursive: true });
+    }
+  }
+);
 
 test('release config analyzes release and ignored dependency commits', async () => {
   const analyzer = releaseConfig.plugins[0];
