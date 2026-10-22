@@ -44,7 +44,9 @@ const tsconfigPath = fileURLToPath(
 const lintStagedConfigPath = fileURLToPath(
   import.meta.resolve('@jabrown93/dev-config/lint-staged')
 );
-const releaseConfig = (await import('@jabrown93/dev-config/release')).default;
+const releaseConfigPath = fileURLToPath(
+  import.meta.resolve('@jabrown93/dev-config/release')
+);
 
 /**
  * Get fixture path by config and expected result.
@@ -133,6 +135,33 @@ async function runLintStaged(cwd, env) {
   return JSON.parse(stdout);
 }
 
+/**
+ * Load release analyzer options with dependency-release mode explicitly set.
+ *
+ * @param {boolean} releaseDeps Whether dependency commits release patches.
+ * @returns {Promise<object>} Commit-analyzer options.
+ */
+async function releaseAnalyzerOptions(releaseDeps) {
+  const env = { ...process.env };
+
+  if (releaseDeps) {
+    env.RELEASE_DEPS = 'true';
+  } else {
+    delete env.RELEASE_DEPS;
+  }
+
+  const command =
+    `import config from ${JSON.stringify(pathToFileURL(releaseConfigPath).href)};` +
+    ' process.stdout.write(JSON.stringify(config.plugins[0][1]));';
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    ['--input-type=module', '--eval', command],
+    { cwd: rootDir, env }
+  );
+
+  return JSON.parse(stdout);
+}
+
 test('ESLint config loads and reports configured TypeScript rule', async () => {
   const eslint = new ESLint({ overrideConfigFile: eslintConfigPath });
   const [clean] = await eslint.lintFiles([fixture('eslint', 'clean.ts')]);
@@ -145,11 +174,9 @@ test('ESLint config loads and reports configured TypeScript rule', async () => {
 
   assert.equal(clean.errorCount, 0);
   assert.equal(clean.warningCount, 0);
-  assert.ok(
-    bad.messages.some(
-      message => message.ruleId === '@typescript-eslint/no-explicit-any'
-    )
-  );
+  assert.equal(bad.errorCount, 0);
+  assert.equal(bad.warningCount, 1);
+  assert.ok(bad.messages.some(message => message.ruleId === 'no-console'));
 });
 
 test('Prettier config formats clean fixture and rejects bad fixture', async () => {
@@ -226,20 +253,19 @@ test('lint-staged config runs clean staged fixture and rejects lint warning', as
     await git(cwd, ['add', '.'], env);
     await git(cwd, ['commit', '-m', 'test: add fixture'], env);
 
-    await writeFile(target, await readFile(fixture('eslint', 'clean.ts')));
+    await writeFile(target, 'export const count: number = 2');
     await git(cwd, ['add', 'fixture.ts'], env);
     assert.equal((await runLintStaged(cwd, env)).success, true);
+    assert.match(
+      await gitOutput(cwd, ['diff', '--cached', '--', 'fixture.ts'], env),
+      /\+export const count: number = 2;/
+    );
 
     await copyFile(fixture('eslint', 'bad.txt'), target);
     await git(cwd, ['add', 'fixture.ts'], env);
     const result = await runLintStaged(cwd, env);
 
     assert.equal(result.success, false);
-    assert.ok(
-      result.messages.some(message =>
-        message.includes('@typescript-eslint/no-explicit-any')
-      )
-    );
   } finally {
     await rm(cwd, { force: true, recursive: true });
   }
@@ -299,24 +325,30 @@ test(
   }
 );
 
-test('release config analyzes release and ignored dependency commits', async () => {
-  const analyzer = releaseConfig.plugins[0];
+test('release config analyzes dependency commits in both release modes', async () => {
   const clean = await readFile(fixture('release', 'clean.txt'), 'utf8');
-  const bad = await readFile(fixture('release', 'bad.txt'), 'utf8');
+  const dependency = await readFile(fixture('release', 'bad.txt'), 'utf8');
   const logger = { log() {} };
 
-  assert.equal(
-    await analyzeCommits(analyzer[1], {
-      commits: [{ message: clean.trim() }],
-      logger,
-    }),
-    'patch'
-  );
-  assert.equal(
-    await analyzeCommits(analyzer[1], {
-      commits: [{ message: bad.trim() }],
-      logger,
-    }),
-    null
-  );
+  for (const [releaseDeps, dependencyRelease] of [
+    [false, null],
+    [true, 'patch'],
+  ]) {
+    const analyzer = await releaseAnalyzerOptions(releaseDeps);
+
+    assert.equal(
+      await analyzeCommits(analyzer, {
+        commits: [{ message: clean.trim() }],
+        logger,
+      }),
+      'patch'
+    );
+    assert.equal(
+      await analyzeCommits(analyzer, {
+        commits: [{ message: dependency.trim() }],
+        logger,
+      }),
+      dependencyRelease
+    );
+  }
 });
