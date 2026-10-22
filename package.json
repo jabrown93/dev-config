@@ -57,7 +57,7 @@
     "format": "prettier --write .",
     "prettier": "prettier --check .",
     "build": "echo \"no build step -- plain JS/JSON config package\"",
-    "test": "node scripts/verify-exports.mjs",
+    "test": "node scripts/verify-exports.mjs && node --test test/*.test.mjs",
     "semantic-release": "semantic-release --no-ci",
     "release": "npm-run-all build semantic-release",
     "prepare": "husky"
