@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.11](https://github.com/jabrown93/dev-config/compare/v1.2.10...v1.2.11) (2026-11-16)
+
 ## [1.2.10](https://github.com/jabrown93/dev-config/compare/v1.2.9...v1.2.10) (2026-11-09)
 
 ## [1.2.9](https://github.com/jabrown93/dev-config/compare/v1.2.8...v1.2.9) (2026-11-02)
