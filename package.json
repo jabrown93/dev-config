@@ -81,7 +81,7 @@
     "@commitlint/cli": "21.2.4",
     "eslint": "10.15.0",
     "husky": "9.1.7",
-    "lint-staged": "17.6.0",
+    "lint-staged": "17.6.1",
     "npm-run-all2": "9.0.4",
     "prettier": "3.10.1",
     "semantic-release": "25.0.9"
